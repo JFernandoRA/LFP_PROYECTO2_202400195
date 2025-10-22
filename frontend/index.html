@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaBridge - Traductor Java a Python</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>JavaBridge - Traductor Java a Python</h1>
+            <div class="menu-bar">
+                <div class="menu-section">
+                    <span>ARCHIVO</span>
+                    <button onclick="nuevoArchivo()">Nuevo</button>
+                    <button onclick="abrirArchivo()">Abrir</button>
+                    <button onclick="guardarJava()">Guardar</button>
+                    <button onclick="guardarPython()">Guardar Python como</button>
+                </div>
+                <div class="menu-section">
+                    <span>TRADUCIR</span>
+                    <button onclick="generarTraduccion()">Generar Traducción</button>
+                    <button onclick="verTokens()">Ver Tokens</button>
+                    <button onclick="simularEjecucion()">Simular Ejecución</button>
+                </div>
+                <div class="menu-section">
+                    <button onclick="mostrarAcercaDe()">Acerca de</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="editor-panel">
+                <div class="code-section">
+                    <h3>Editor Java</h3>
+                    <textarea id="javaEditor" placeholder="// Escribe tu código Java aquí">public class MiPrograma {
+    public static void main(String[] args) {
+        int x = 5;
+        System.out.println("Hola mundo");
+    }
+}</textarea>
+                </div>
+                
+                <div class="code-section">
+                    <h3>Python Traducido</h3>
+                    <textarea id="pythonOutput" readonly placeholder="Aquí aparecerá el Python traducido"></textarea>
+                </div>
+            </div>
+
+            <div class="stats">
+                <span id="tokenCount">Tokens generados: 0</span>
+            </div>
+
+            <div id="reportes" class="reportes"></div>
+        </main>
+    </div>
+
+        <script src="../backend/js/Error/Error.js"></script>
+        <script src="../backend/js/Token/token.js"></script>
+        <script src="../backend/js/Lexer/lexer.js"></script>
+        <script src="../backend/js/Parser/parser.js"></script>
+        <script src="../backend/js/Traductor/traductor.js"></script>
+        <script src="js/app.js"></script>
+</body>
+</html>
