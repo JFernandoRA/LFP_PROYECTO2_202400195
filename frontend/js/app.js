@@ -269,6 +269,11 @@ function simularEjecucion() {
 function mostrarAcercaDe() {
     alert('JavaBridge - Traductor de Java a Python:\n\n' +
     'Desarrollado para el curso de Lenguajes Formales y de Programación\n\n' +
+    'Universidad: Universidad de San Carlos de Guatemala\n' +
+    'Facultad: Facultad de Ingeniería\n' +
+    'Carrera: Ingeniería en Ciencias y Sistemas\n\n' +
+    'Autor: José Fernando Ramirez Ambrocio\n' +
+    'Carné: 202400195\n\n' +
     'Funcionalidades:\n' +
     '• Análisis Léxico Manual\n' +
     '• Análisis Sintáctico Manual\n' +
