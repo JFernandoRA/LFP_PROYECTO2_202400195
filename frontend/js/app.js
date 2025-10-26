@@ -255,15 +255,8 @@ function guardarArchivo(contenido, nombre, tipo) {
 }
 
 function simularEjecucion() {
-    const codigoPython = document.getElementById('pythonOutput').value;
-
-    if (!codigoPython.trim() || codigoPython.includes('ERRORES') || codigoPython.includes('Errores')) {
-        alert('No hay código Python válido para simular ejecución. Genere una traducción exitosa primero.');
-        return;
-    }
-
-    // Simulación básica - mostrar el código Python en un alert
-    alert("SIMULACIÓN DE EJECUCIÓN:\n\nEl siguiente código Python estaría listo para ejecutar:\n\n" + codigoPython);
+    alert("Simulación en proceso de desarrollo\n\n" +
+          "Próximamente podrás simular la ejecución del código Python.");
 }
 
 function mostrarAcercaDe() {
