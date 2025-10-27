@@ -1,4 +1,4 @@
-/* ==================== ESTILOS GENERALES ==================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -17,7 +17,6 @@ body {
     margin: 0 auto;
 }
 
-/* ==================== HEADER ==================== */
 header {
     background: white;
     border-radius: 12px;
@@ -35,7 +34,6 @@ h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* ==================== MENU BAR ==================== */
 .menu-bar {
     display: flex;
     gap: 30px;
@@ -67,7 +65,6 @@ h1 {
     letter-spacing: 1px;
 }
 
-/* ==================== BOTONES ==================== */
 button {
     background: #3498db;
     color: white;
@@ -92,7 +89,6 @@ button:active {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* ==================== MAIN CONTENT ==================== */
 main {
     background: white;
     border-radius: 12px;
@@ -100,7 +96,6 @@ main {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* ==================== EDITOR PANEL ==================== */
 .editor-panel {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -151,7 +146,6 @@ textarea#pythonOutput {
     color: #27ae60;
 }
 
-/* ==================== STATS ==================== */
 .stats {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -164,7 +158,6 @@ textarea#pythonOutput {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* ==================== REPORTES ==================== */
 .reportes {
     margin-top: 20px;
 }
@@ -181,7 +174,7 @@ textarea#pythonOutput {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* ==================== TABLAS ==================== */
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -236,7 +229,6 @@ table tr:hover {
     background: #ffd6d6 !important;
 }
 
-/* ==================== RESPONSIVE DESIGN ==================== */
 @media (max-width: 1200px) {
     .editor-panel {
         grid-template-columns: 1fr;
@@ -297,7 +289,6 @@ table tr:hover {
     }
 }
 
-/* ==================== ANIMACIONES ==================== */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -314,7 +305,6 @@ table tr:hover {
     animation: fadeIn 0.5s ease;
 }
 
-/* ==================== SCROLLBAR PERSONALIZADA ==================== */
 textarea::-webkit-scrollbar {
     width: 10px;
 }
@@ -333,7 +323,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
-/* ==================== UTILIDADES ==================== */
 .text-center {
     text-align: center;
 }
@@ -346,7 +335,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     margin-top: 20px;
 }
 
-/* ==================== PRINT STYLES ==================== */
 @media print {
     body {
         background: white;

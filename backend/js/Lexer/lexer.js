@@ -1,4 +1,4 @@
-// ==================== CLASE LEXER ====================
+
 class Lexer {
     constructor(texto) {
         this.texto = texto;

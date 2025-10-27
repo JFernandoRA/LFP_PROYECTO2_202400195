@@ -1,4 +1,4 @@
-// ==================== CLASE TRADUCTOR ====================
+
 class Traductor {
     constructor() {
         this.codigoPython = "";

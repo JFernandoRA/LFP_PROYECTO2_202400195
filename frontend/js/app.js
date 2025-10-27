@@ -1,9 +1,9 @@
-// ==================== VARIABLES GLOBALES ====================
+
 let lexer;
 let parser;
 let traductor;
 
-// ==================== FUNCIÓN PRINCIPAL DE TRADUCCIÓN ====================
+
 function generarTraduccion() {
     const codigoJava = document.getElementById('javaEditor').value;
 
@@ -57,7 +57,6 @@ function generarTraduccion() {
     }
 }
 
-// ==================== FUNCIÓN VER TOKENS ====================
 function verTokens() {
     const codigoJava = document.getElementById('javaEditor').value;
 
@@ -77,7 +76,6 @@ function verTokens() {
     }
 }
 
-// ==================== FUNCIONES DE REPORTES ====================
 function mostrarErroresLexicos(errores) {
     const reportesDiv = document.getElementById('reportes');
     let html = '<h3>Reporte de Errores Léxicos</h3>';
@@ -167,7 +165,6 @@ function actualizarContadorTokens(cantidad) {
     document.getElementById('tokenCount').textContent = `Tokens generados: ${cantidad}`;
 }
 
-// ==================== FUNCIONES DE ARCHIVO ====================
 function nuevoArchivo() {
     if (confirm("¿Estás seguro de que quieres crear un nuevo archivo? Se perderán los cambios no guardados.")) {
         document.getElementById('javaEditor').value = "";
@@ -248,7 +245,7 @@ function guardarArchivo(contenido, nombre, tipo) {
     }
 }
 
-// ==================== FUNCIÓN SIMULAR EJECUCIÓN ====================
+
 function simularEjecucion() {
     const codigoPython = document.getElementById('pythonOutput').value;
 
@@ -268,7 +265,6 @@ function simularEjecucion() {
         "Próximamente: Ejecución paso a paso dentro de la interfaz.");
 }
 
-// ==================== FUNCIÓN ACERCA DE ====================
 function mostrarAcercaDe() {
     alert('JavaBridge - Traductor de Java a Python:\n\n' +
         'Desarrollado para el curso de Lenguajes Formales y de Programación\n\n' +
@@ -286,7 +282,6 @@ function mostrarAcercaDe() {
         '• Interfaz Web Completa');
 }
 
-// ==================== INICIALIZACIÓN ====================
 document.addEventListener('DOMContentLoaded', function () {
     actualizarContadorTokens(0);
 });

@@ -1,4 +1,4 @@
-// ==================== CLASE TOKEN ====================
+
 class Token {
     constructor(type, value, line, column) {
         this.type = type;
@@ -8,7 +8,6 @@ class Token {
     }
 }
 
-// ==================== PALABRAS RESERVADAS ====================
 const ReservedWords = {
     "public": "PALABRA_RESERVADA",
     "class": "PALABRA_RESERVADA",
@@ -32,7 +31,6 @@ const ReservedWords = {
     "println": "PRINTLN"
 };
 
-// ==================== SÍMBOLOS ====================
 const Symbols = {
     "{": "LLAVE_IZQ",
     "}": "LLAVE_DER",
