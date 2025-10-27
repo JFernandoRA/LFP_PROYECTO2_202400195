@@ -1,5 +1,6 @@
-class Token{
-    constructor(type, value, line, column){
+// ==================== CLASE TOKEN ====================
+class Token {
+    constructor(type, value, line, column) {
         this.type = type;
         this.value = value;
         this.line = line;
@@ -7,6 +8,7 @@ class Token{
     }
 }
 
+// ==================== PALABRAS RESERVADAS ====================
 const ReservedWords = {
     "public": "PALABRA_RESERVADA",
     "class": "PALABRA_RESERVADA",
@@ -30,9 +32,10 @@ const ReservedWords = {
     "println": "PRINTLN"
 };
 
+// ==================== SÍMBOLOS ====================
 const Symbols = {
     "{": "LLAVE_IZQ",
-    "}": "LLAVE_DER", 
+    "}": "LLAVE_DER",
     "(": "PAR_IZQ",
     ")": "PAR_DER",
     "[": "CORCHETE_IZQ",
@@ -40,19 +43,19 @@ const Symbols = {
     ";": "SEMICOLON",
     ",": "COMMA",
     ".": "DOT",
-    "=": "EQUAL",
-    "+": "PLUS",
-    "-": "MINUS",
-    "*": "MULTIPLY", 
-    "/": "DIVIDE",
     "==": "EQUAL_EQUAL",
     "!=": "NOT_EQUAL",
-    ">": "GREATER",
-    "<": "LESS",
     ">=": "GREATER_EQUAL",
     "<=": "LESS_EQUAL",
     "++": "INCREMENT",
     "--": "DECREMENT",
     "&&": "AND",
-    "||": "OR"
+    "||": "OR",
+    "=": "EQUAL",
+    "+": "PLUS",
+    "-": "MINUS",
+    "*": "MULTIPLY",
+    "/": "DIVIDE",
+    ">": "GREATER",
+    "<": "LESS"
 };

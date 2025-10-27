@@ -1,3 +1,4 @@
+
 class Parser {
     constructor(tokens) {
         this.tokens = tokens;
@@ -13,11 +14,11 @@ class Parser {
 
         try {
             this.ast = this.PROGRAMA();
-            
+
             if (this.pos < this.tokens.length) {
                 const tokenExtra = this.tokens[this.pos];
-                if (tokenExtra.type !== "LLAVE_DER") { 
-                    this.agregarError("Sintáctico", tokenExtra.value, 
+                if (tokenExtra.type !== "LLAVE_DER") {
+                    this.agregarError("Sintáctico", tokenExtra.value,
                         "Código adicional inesperado", tokenExtra.line, tokenExtra.column);
                 }
             }
@@ -149,7 +150,7 @@ class Parser {
 
     SENTENCIAS() {
         const sentencias = [];
-        
+
         while (this.pos < this.tokens.length && !this.coincide("LLAVE_DER")) {
             const tokenActual = this.actual();
 
@@ -177,9 +178,15 @@ class Parser {
             if (this.esTipo(token.value)) {
                 return this.DECLARACION();
             } else if (this.coincide("IDENTIFICADOR")) {
-                return this.ASIGNACION();
+                return this.ASIGNACION_O_INCREMENTO();
             } else if (token.value === "System") {
                 return this.PRINT();
+            } else if (token.value === "if") {
+                return this.IF_ELSE();
+            } else if (token.value === "for") {
+                return this.FOR();
+            } else if (token.value === "while") {
+                return this.WHILE();
             } else if (this.coincide("SEMICOLON")) {
                 this.avanzar();
                 return { tipo: "VACIO" };
@@ -228,33 +235,55 @@ class Parser {
         };
     }
 
-    ASIGNACION() {
+    ASIGNACION_O_INCREMENTO() {
         const id = this.actual();
         this.avanzar();
 
-        if (!this.coincide("EQUAL")) {
-            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '='", this.actual().line, this.actual().column);
+        if (this.coincide("INCREMENT")) {
+            this.avanzar();
+            if (!this.coincide("SEMICOLON")) {
+                this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
+                return null;
+            }
+            this.avanzar();
+            return {
+                tipo: "INCREMENTO",
+                nombre: id.value
+            };
+        } else if (this.coincide("DECREMENT")) {
+            this.avanzar();
+            if (!this.coincide("SEMICOLON")) {
+                this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
+                return null;
+            }
+            this.avanzar();
+            return {
+                tipo: "DECREMENTO",
+                nombre: id.value
+            };
+        } else if (this.coincide("EQUAL")) {
+            this.avanzar();
+            const expresion = this.EXPRESION();
+
+            if (!this.coincide("SEMICOLON")) {
+                this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
+                return null;
+            }
+            this.avanzar();
+
+            return {
+                tipo: "ASIGNACION",
+                nombre: id.value,
+                valor: expresion
+            };
+        } else {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '=', '++' o '--'", this.actual().line, this.actual().column);
             return null;
         }
-        this.avanzar();
-
-        const expresion = this.EXPRESION();
-
-        if (!this.coincide("SEMICOLON")) {
-            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
-            return null;
-        }
-        this.avanzar();
-
-        return {
-            tipo: "ASIGNACION",
-            nombre: id.value,
-            valor: expresion
-        };
     }
 
     PRINT() {
-        this.avanzar(); 
+        this.avanzar();
 
         if (!this.coincide("DOT")) {
             this.agregarError("Sintáctico", this.actual().value, "Se esperaba '.'", this.actual().line, this.actual().column);
@@ -304,6 +333,218 @@ class Parser {
         };
     }
 
+    IF_ELSE() {
+        this.avanzar();
+
+        if (!this.coincide("PAR_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '('", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const condicion = this.EXPRESION();
+
+        if (!this.coincide("PAR_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ')'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        if (!this.coincide("LLAVE_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '{'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const bloqueIf = this.SENTENCIAS();
+
+        if (!this.coincide("LLAVE_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '}'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        let bloqueElse = null;
+        if (this.actual().value === "else") {
+            this.avanzar();
+
+            if (!this.coincide("LLAVE_IZQ")) {
+                this.agregarError("Sintáctico", this.actual().value, "Se esperaba '{'", this.actual().line, this.actual().column);
+                return null;
+            }
+            this.avanzar();
+
+            bloqueElse = this.SENTENCIAS();
+
+            if (!this.coincide("LLAVE_DER")) {
+                this.agregarError("Sintáctico", this.actual().value, "Se esperaba '}'", this.actual().line, this.actual().column);
+                return null;
+            }
+            this.avanzar();
+        }
+
+        return {
+            tipo: "IF_ELSE",
+            condicion: condicion,
+            bloqueIf: bloqueIf,
+            bloqueElse: bloqueElse
+        };
+    }
+
+    FOR() {
+        this.avanzar();
+
+        if (!this.coincide("PAR_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '('", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const inicializacion = this.DECLARACION_FOR();
+        const condicion = this.EXPRESION();
+
+        if (!this.coincide("SEMICOLON")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const incremento = this.EXPRESION_FOR();
+
+        if (!this.coincide("PAR_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ')'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        if (!this.coincide("LLAVE_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '{'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const bloque = this.SENTENCIAS();
+
+        if (!this.coincide("LLAVE_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '}'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        return {
+            tipo: "FOR",
+            inicializacion: inicializacion,
+            condicion: condicion,
+            incremento: incremento,
+            bloque: bloque
+        };
+    }
+
+    DECLARACION_FOR() {
+        const tipo = this.actual().value;
+        this.avanzar();
+
+        const id = this.actual();
+        if (!this.coincide("IDENTIFICADOR")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba identificador", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        let expresion = null;
+        if (this.coincide("EQUAL")) {
+            this.avanzar();
+            expresion = this.EXPRESION();
+        }
+
+        if (!this.coincide("SEMICOLON")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ';'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        return {
+            tipo: "DECLARACION",
+            tipoDato: tipo,
+            variables: [{
+                tipo: "VARIABLE",
+                nombre: id.value,
+                valor: expresion
+            }]
+        };
+    }
+
+    EXPRESION_FOR() {
+        const id = this.actual();
+        if (!this.coincide("IDENTIFICADOR")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba identificador", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        if (this.coincide("INCREMENT")) {
+            this.avanzar();
+            return {
+                tipo: "INCREMENTO",
+                nombre: id.value
+            };
+        } else if (this.coincide("DECREMENT")) {
+            this.avanzar();
+            return {
+                tipo: "DECREMENTO",
+                nombre: id.value
+            };
+        } else if (this.coincide("EQUAL")) {
+            this.avanzar();
+            const expresion = this.EXPRESION();
+            return {
+                tipo: "ASIGNACION",
+                nombre: id.value,
+                valor: expresion
+            };
+        }
+
+        return null;
+    }
+
+    WHILE() {
+        this.avanzar();
+
+        if (!this.coincide("PAR_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '('", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const condicion = this.EXPRESION();
+
+        if (!this.coincide("PAR_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba ')'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        if (!this.coincide("LLAVE_IZQ")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '{'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        const bloque = this.SENTENCIAS();
+
+        if (!this.coincide("LLAVE_DER")) {
+            this.agregarError("Sintáctico", this.actual().value, "Se esperaba '}'", this.actual().line, this.actual().column);
+            return null;
+        }
+        this.avanzar();
+
+        return {
+            tipo: "WHILE",
+            condicion: condicion,
+            bloque: bloque
+        };
+    }
+
     EXPRESION() {
         return this.EXPRESION_LOGICA();
     }
@@ -315,7 +556,7 @@ class Parser {
             const operador = this.actual().value;
             this.avanzar();
             const derecha = this.EXPRESION_RELACIONAL();
-            
+
             izquierda = {
                 tipo: "EXPRESION_LOGICA",
                 operador: operador,
@@ -330,14 +571,14 @@ class Parser {
     EXPRESION_RELACIONAL() {
         let izquierda = this.EXPRESION_ARITMETICA();
 
-        while (this.coincide("EQUAL_EQUAL") || this.coincide("NOT_EQUAL") || 
-               this.coincide("GREATER") || this.coincide("LESS") ||
-               this.coincide("GREATER_EQUAL") || this.coincide("LESS_EQUAL")) {
-            
+        while (this.coincide("EQUAL_EQUAL") || this.coincide("NOT_EQUAL") ||
+            this.coincide("GREATER") || this.coincide("LESS") ||
+            this.coincide("GREATER_EQUAL") || this.coincide("LESS_EQUAL")) {
+
             const operador = this.actual().value;
             this.avanzar();
             const derecha = this.EXPRESION_ARITMETICA();
-            
+
             izquierda = {
                 tipo: "EXPRESION_RELACIONAL",
                 operador: operador,
@@ -356,7 +597,7 @@ class Parser {
             const operador = this.actual().value;
             this.avanzar();
             const derecha = this.TERMINO();
-            
+
             izquierda = {
                 tipo: "EXPRESION_ARITMETICA",
                 operador: operador,
@@ -375,7 +616,7 @@ class Parser {
             const operador = this.actual().value;
             this.avanzar();
             const derecha = this.FACTOR();
-            
+
             izquierda = {
                 tipo: "EXPRESION_ARITMETICA",
                 operador: operador,
@@ -390,11 +631,11 @@ class Parser {
     FACTOR() {
         const token = this.actual();
 
-        if (this.coincide("IDENTIFICADOR") || this.coincide("INT") || 
-            this.coincide("DOUBLE") || this.coincide("STRING") || 
-            this.coincide("CHAR") || this.coincide("TRUE") || 
+        if (this.coincide("IDENTIFICADOR") || this.coincide("INT") ||
+            this.coincide("DOUBLE") || this.coincide("STRING") ||
+            this.coincide("CHAR") || this.coincide("TRUE") ||
             this.coincide("FALSE")) {
-            
+
             this.avanzar();
             return {
                 tipo: "PRIMARIO",
@@ -404,7 +645,7 @@ class Parser {
         } else if (this.coincide("PAR_IZQ")) {
             this.avanzar();
             const expresion = this.EXPRESION();
-            
+
             if (!this.coincide("PAR_DER")) {
                 this.agregarError("Sintáctico", this.actual().value, "Se esperaba ')'", this.actual().line, this.actual().column);
                 return null;
@@ -418,26 +659,19 @@ class Parser {
         }
     }
 
-    // MÉTODOS AUXILIARES
+    // ==================== MÉTODOS AUXILIARES ====================
     saltarHastaRecuperacion() {
         const tokensInicial = this.pos;
         while (this.pos < this.tokens.length) {
             const token = this.actual();
-            if (this.coincide("SEMICOLON") || this.coincide("LLAVE_DER") || 
-                this.esTipo(token.value) || token.value === "System" || 
+            if (this.coincide("SEMICOLON") || this.coincide("LLAVE_DER") ||
+                this.esTipo(token.value) || token.value === "System" ||
                 token.type === "IDENTIFICADOR") {
                 break;
             }
             this.avanzar();
         }
         return this.pos - tokensInicial;
-    }
-
-    buscarSiguiente(tipoToken) {
-        while (this.pos < this.tokens.length && !this.coincide(tipoToken)) {
-            this.avanzar();
-        }
-        return this.pos < this.tokens.length;
     }
 
     verificarValor(valorEsperado) {

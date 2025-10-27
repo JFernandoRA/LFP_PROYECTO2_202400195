@@ -1,3 +1,4 @@
+// ==================== CLASE LEXER ====================
 class Lexer {
     constructor(texto) {
         this.texto = texto;
@@ -29,21 +30,18 @@ class Lexer {
 
         while (this.pos < this.texto.length) {
             let char = this.texto[this.pos];
-            let inicioLine = this.line;
-            let inicioCol = this.column;
 
             if (char === " " || char === "\t" || char === "\r") {
                 this.avanzar();
                 continue;
             }
 
-         
             if (char === "\n") {
                 this.avanzar();
                 continue;
             }
 
-
+            // Comentarios de línea //
             if (char === '/' && this.texto[this.pos + 1] === '/') {
                 while (this.pos < this.texto.length && this.texto[this.pos] !== '\n') {
                     this.avanzar();
@@ -51,52 +49,54 @@ class Lexer {
                 continue;
             }
 
+            // Comentarios de bloque /* */
             if (char === '/' && this.texto[this.pos + 1] === '*') {
                 this.avanzar();
-                this.avanzar(); 
-                
+                this.avanzar();
                 while (this.pos < this.texto.length - 1) {
                     if (this.texto[this.pos] === '*' && this.texto[this.pos + 1] === '/') {
-                        this.avanzar(); 
-                        this.avanzar(); 
+                        this.avanzar();
+                        this.avanzar();
                         break;
-                    }
-                    if (this.texto[this.pos] === '\n') {
-                        this.line++;
-                        this.column = 1;
                     }
                     this.avanzar();
                 }
                 continue;
             }
 
+            // Procesar símbolos
             let simboloProcesado = this.procesarSimbolo();
             if (simboloProcesado) continue;
 
+            // Identificadores y palabras reservadas
             if (this.esLetra(char) || char === '_') {
                 this.recorrerIdentificador();
                 continue;
             }
 
+            // Números
             if (this.esDigito(char) || (char === '-' && this.esDigito(this.texto[this.pos + 1]))) {
                 this.recorrerNumero();
                 continue;
             }
 
+            // Cadenas
             if (char === '"') {
                 this.recorrerCadena();
                 continue;
             }
 
+            // Caracteres
             if (char === "'") {
                 this.recorrerCaracter();
                 continue;
             }
 
+            // Carácter no reconocido
             this.agregarErrorLexico(char, "Carácter no reconocido", this.line, this.column);
             this.avanzar();
         }
-        
+
         return { tokens: this.tokens, errors: this.errors };
     }
 
@@ -104,6 +104,7 @@ class Lexer {
         let char = this.texto[this.pos];
         let next = this.texto[this.pos + 1] || "";
 
+        // Verificar símbolos de dos caracteres primero
         const simboloDoble = char + next;
         if (Symbols[simboloDoble]) {
             this.tokens.push(new Token(Symbols[simboloDoble], simboloDoble, this.line, this.column));
@@ -112,7 +113,7 @@ class Lexer {
             return true;
         }
 
-
+        // Verificar símbolos de un carácter
         if (Symbols[char]) {
             this.tokens.push(new Token(Symbols[char], char, this.line, this.column));
             this.avanzar();
@@ -125,10 +126,10 @@ class Lexer {
     recorrerIdentificador() {
         let inicioCol = this.column;
         let buffer = "";
-        
+
         while (this.pos < this.texto.length &&
-               (this.esLetra(this.texto[this.pos]) || 
-                this.esDigito(this.texto[this.pos]) || 
+            (this.esLetra(this.texto[this.pos]) ||
+                this.esDigito(this.texto[this.pos]) ||
                 this.texto[this.pos] === '_')) {
             buffer += this.texto[this.pos];
             this.avanzar();
@@ -154,7 +155,7 @@ class Lexer {
         }
 
         while (this.pos < this.texto.length &&
-               (this.esDigito(this.texto[this.pos]) || this.texto[this.pos] === '.')) {
+            (this.esDigito(this.texto[this.pos]) || this.texto[this.pos] === '.')) {
 
             if (this.texto[this.pos] === '.') {
                 if (esDecimal) {
@@ -178,24 +179,24 @@ class Lexer {
     recorrerCadena() {
         let inicioCol = this.column;
         let buffer = '"';
-        this.avanzar(); 
+        this.avanzar();
 
         let cerrada = false;
-        
+
         while (this.pos < this.texto.length) {
             let char = this.texto[this.pos];
-            
+
             if (char === '"') {
                 buffer += char;
                 this.avanzar();
                 cerrada = true;
                 break;
             }
-            
+
             if (char === '\n') {
                 break;
             }
-            
+
             buffer += char;
             this.avanzar();
         }
@@ -211,6 +212,7 @@ class Lexer {
         let inicioCol = this.column;
         let buffer = "'";
         this.avanzar();
+
         if (this.pos >= this.texto.length) {
             this.agregarErrorLexico(buffer, "Carácter mal formado", this.line, inicioCol);
             return;

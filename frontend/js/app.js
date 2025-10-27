@@ -1,7 +1,9 @@
+// ==================== VARIABLES GLOBALES ====================
 let lexer;
 let parser;
 let traductor;
 
+// ==================== FUNCIÓN PRINCIPAL DE TRADUCCIÓN ====================
 function generarTraduccion() {
     const codigoJava = document.getElementById('javaEditor').value;
 
@@ -13,27 +15,26 @@ function generarTraduccion() {
         return;
     }
 
+    // Análisis Léxico
     lexer = new Lexer(codigoJava);
     const resultadoLexico = lexer.analizar();
 
     actualizarContadorTokens(resultadoLexico.tokens.length);
-
     generarReporteTokens(resultadoLexico.tokens);
 
     if (resultadoLexico.errors.length > 0) {
         mostrarErroresLexicos(resultadoLexico.errors);
     }
 
-    // Análisis Sintáctico - SIEMPRE se ejecuta, incluso con errores léxicos
+    // Análisis Sintáctico
     parser = new Parser(resultadoLexico.tokens);
     const resultadoSintactico = parser.analizar();
 
-    // SIEMPRE mostrar errores sintácticos si existen
     if (resultadoSintactico.errors.length > 0) {
         mostrarErroresSintacticos(resultadoSintactico.errors);
     }
 
-    // Decidir si generar Python o mostrar errores
+    // Verificar si hay errores
     const hayErroresLexicos = resultadoLexico.errors.length > 0;
     const hayErroresSintacticos = resultadoSintactico.errors.length > 0;
 
@@ -49,13 +50,14 @@ function generarTraduccion() {
         mensajeError += "\n// No se puede generar Python hasta corregir los errores.";
         document.getElementById('pythonOutput').value = mensajeError;
     } else {
-        // SOLO si no hay errores, generar Python
+        // Traducción a Python
         traductor = new Traductor();
         const resultadoTraduccion = traductor.traducir(resultadoSintactico.ast);
         document.getElementById('pythonOutput').value = resultadoTraduccion.codigo;
     }
 }
 
+// ==================== FUNCIÓN VER TOKENS ====================
 function verTokens() {
     const codigoJava = document.getElementById('javaEditor').value;
 
@@ -68,16 +70,14 @@ function verTokens() {
     const resultado = lexer.analizar();
 
     actualizarContadorTokens(resultado.tokens.length);
-
-    // SIEMPRE mostrar tokens
     generarReporteTokens(resultado.tokens);
-    
-    // Si hay errores léxicos, mostrarlos también
+
     if (resultado.errors.length > 0) {
         mostrarErroresLexicos(resultado.errors);
     }
 }
 
+// ==================== FUNCIONES DE REPORTES ====================
 function mostrarErroresLexicos(errores) {
     const reportesDiv = document.getElementById('reportes');
     let html = '<h3>Reporte de Errores Léxicos</h3>';
@@ -98,12 +98,10 @@ function mostrarErroresLexicos(errores) {
     }
 
     html += '</table>';
-    
-    // Agregar al contenido existente
+
     const contenidoActual = reportesDiv.innerHTML;
     reportesDiv.innerHTML = contenidoActual + html;
 }
-
 
 function mostrarErroresSintacticos(errores) {
     const reportesDiv = document.getElementById('reportes');
@@ -125,8 +123,7 @@ function mostrarErroresSintacticos(errores) {
     }
 
     html += '</table>';
-    
-    // Agregar al contenido existente
+
     const contenidoActual = reportesDiv.innerHTML;
     reportesDiv.innerHTML = contenidoActual + html;
 }
@@ -134,8 +131,7 @@ function mostrarErroresSintacticos(errores) {
 function generarReporteTokens(tokens) {
     const reportesDiv = document.getElementById('reportes');
     let html = '<h3>Reporte de Tokens</h3>';
-    
-    // Tabla de tokens
+
     html += '<table><tr><th>No.</th><th>Lexema</th><th>Tipo</th><th>Línea</th><th>Columna</th></tr>';
 
     if (tokens.length === 0) {
@@ -171,6 +167,7 @@ function actualizarContadorTokens(cantidad) {
     document.getElementById('tokenCount').textContent = `Tokens generados: ${cantidad}`;
 }
 
+// ==================== FUNCIONES DE ARCHIVO ====================
 function nuevoArchivo() {
     if (confirm("¿Estás seguro de que quieres crear un nuevo archivo? Se perderán los cambios no guardados.")) {
         document.getElementById('javaEditor').value = "";
@@ -185,13 +182,12 @@ function abrirArchivo() {
     input.type = 'file';
     input.accept = '.java';
 
-    input.onchange = function(event) {
+    input.onchange = function (event) {
         const archivo = event.target.files[0];
         if (archivo) {
             const lector = new FileReader();
-            lector.onload = function(e) {
+            lector.onload = function (e) {
                 document.getElementById('javaEditor').value = e.target.result;
-                // Limpiar output cuando se carga nuevo archivo
                 document.getElementById('pythonOutput').value = "";
                 limpiarReportes();
                 actualizarContadorTokens(0);
@@ -214,7 +210,6 @@ function guardarJava() {
 function guardarPython() {
     const contenido = document.getElementById('pythonOutput').value;
 
-    // VERIFICACIÓN ESTRICTA - No guardar si hay errores
     if (!contenido.trim()) {
         alert("No hay código Python generado para guardar.");
         return;
@@ -229,7 +224,6 @@ function guardarPython() {
         return;
     }
 
-    // Verificar que es código Python válido (contiene la cabecera esperada)
     if (!contenido.includes('# Traducido de Java a Python')) {
         alert('No hay una traducción válida para guardar. Genere la traducción primero.');
         return;
@@ -254,29 +248,45 @@ function guardarArchivo(contenido, nombre, tipo) {
     }
 }
 
+// ==================== FUNCIÓN SIMULAR EJECUCIÓN ====================
 function simularEjecucion() {
-    alert("Simulación en proceso de desarrollo\n\n" +
-          "Próximamente podrás simular la ejecución del código Python.");
+    const codigoPython = document.getElementById('pythonOutput').value;
+
+    if (!codigoPython.trim()) {
+        alert("No hay código Python para ejecutar.");
+        return;
+    }
+
+    if (codigoPython.includes('ERRORES') || codigoPython.startsWith('//')) {
+        alert("No se puede ejecutar: Hay errores en el código. Corrija los errores primero.");
+        return;
+    }
+
+    alert("Simulación de ejecución:\n\n" +
+        "El código Python ha sido generado correctamente.\n" +
+        "Para ejecutarlo, copie el código y ejecútelo en un intérprete de Python.\n\n" +
+        "Próximamente: Ejecución paso a paso dentro de la interfaz.");
 }
 
+// ==================== FUNCIÓN ACERCA DE ====================
 function mostrarAcercaDe() {
     alert('JavaBridge - Traductor de Java a Python:\n\n' +
-    'Desarrollado para el curso de Lenguajes Formales y de Programación\n\n' +
-    'Universidad: Universidad de San Carlos de Guatemala\n' +
-    'Facultad: Facultad de Ingeniería\n' +
-    'Carrera: Ingeniería en Ciencias y Sistemas\n\n' +
-    'Autor: José Fernando Ramirez Ambrocio\n' +
-    'Carné: 202400195\n\n' +
-    'Funcionalidades:\n' +
-    '• Análisis Léxico Manual\n' +
-    '• Análisis Sintáctico Manual\n' +
-    '• Traducción Java → Python\n' +
-    '• Reportes HTML de Tokens y Errores\n' +
-    '• Interfaz Web Completa');
+        'Desarrollado para el curso de Lenguajes Formales y de Programación\n\n' +
+        'Universidad: Universidad de San Carlos de Guatemala\n' +
+        'Facultad: Facultad de Ingeniería\n' +
+        'Carrera: Ingeniería en Ciencias y Sistemas\n\n' +
+        'Autor: José Fernando Ramirez Ambrocio\n' +
+        'Carné: 202400195\n\n' +
+        'Funcionalidades:\n' +
+        '• Análisis Léxico Manual\n' +
+        '• Análisis Sintáctico Manual\n' +
+        '• Traducción Java → Python\n' +
+        '• Soporte para estructuras de control (if-else, for, while)\n' +
+        '• Reportes HTML de Tokens y Errores\n' +
+        '• Interfaz Web Completa');
 }
 
-// Inicialización al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Código inicial ya está en el textarea
+// ==================== INICIALIZACIÓN ====================
+document.addEventListener('DOMContentLoaded', function () {
     actualizarContadorTokens(0);
 });
